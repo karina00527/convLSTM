@@ -211,6 +211,19 @@ metrics = {
     "F1分数 (F1-Score)": f1_score(actual_valid, pred_valid)
 }
 
+# 计算FOM（优度系数）：适用于变化检测/目标区域检测
+# FOM = 正确检测的目标像素 / (正确检测 + 漏检 + 虚检)
+cm = confusion_matrix(actual_valid, pred_valid)
+if cm.shape == (2, 2):
+    TN, FP, FN, TP = cm.ravel()  # 混淆矩阵拆解：TN[0,0], FP[0,1], FN[1,0], TP[1,1]
+    # 防止分母为0
+    denominator = TP + FN + FP
+    fom = TP / denominator if denominator != 0 else 0.0
+    metrics["优度系数 (FOM)"] = fom
+else:
+    # 处理单类别情况（所有样本都是0或1）
+    metrics["优度系数 (FOM)"] = np.nan
+
 # 打印指标
 print("\n===== 二值分类评估指标 =====")
 for name, value in metrics.items():
