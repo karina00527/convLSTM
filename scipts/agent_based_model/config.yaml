@@ -1,0 +1,124 @@
+years: [2008, 2020]
+random_seed: 42
+
+construction:
+  duration_years:  # inclusive ranges (lo, hi) for sampling integer duration
+    MumDad: [1, 1]
+    Small:  [1, 2]
+    Large:  [1, 3]
+    Specialist: [1, 3]
+  max_concurrent:
+    MumDad: 90
+    Small:  90
+    Large:  450
+    Specialist: 45
+  capital_multiplier:  # relative scale factors applied to base capital in model
+    MumDad: 1.0
+    Small:  5.0
+    Large:  40.0
+    Specialist: 30.0
+
+# Minimum utility threshold to trigger development (can be overridden per type later if needed)
+threshold:
+  MumDad: 0.0
+  Small:  0.0
+  Large:  0.0
+  Specialist: 0.0
+
+voting:
+  enabled: true
+  util_threshold: 0.27
+  vote_threshold: 2
+  candidate_sample: 1000
+  vote_quota_per_dev: 20
+  max_starts_per_year_global: 1000
+  # max_starts_per_year_by_type:
+  #   MumDad: 200
+  #   Small: 150
+  #   Large: 250
+  #   Specialist: 100
+# Developer behavioral traits & gates (informed by Bishop 2025 synthesis)
+traits:
+  MumDad:
+    risk_aversion: 1.2
+    finance_fail: 0.30   # higher financing gate fail probability
+    policy_fail: 0.10    # more likely blocked by policy
+    timing_delay_prob: 0.00  # no deliberate delay (needs quick turnover)
+    can_landbank: false
+    baseline_bias: 0.4   # adds to intercept utility
+  Small:
+    risk_aversion: 1.0
+    finance_fail: 0.20
+    policy_fail: 0.08
+    timing_delay_prob: 0.05
+    can_landbank: false
+    baseline_bias: 0.2
+  Large:
+    risk_aversion: 0.7
+    finance_fail: 0.05
+    policy_fail: 0.02
+    timing_delay_prob: 0.25  # may intentionally delay
+    can_landbank: true
+    baseline_bias: 0.1
+  Specialist:
+    risk_aversion: 0.9
+    finance_fail: 0.10
+    policy_fail: 0.05
+    timing_delay_prob: 0.15
+    can_landbank: true
+    baseline_bias: 0.3
+
+competition:
+  enabled: true
+  w_type: 1.0          # W_Type：类型/效用项权重
+  w_frustration: 0.3   # W_Frustration：挫折项权重
+  frustration_decay: 0.1           # 每年挫折度衰减比例（可为 0）
+  cap: 5               # 挫折度上限，避免无限增大
+  normalize_utility: true  # 多人竞争时是否把效用做min-max归一，避免数值尺度影响
+
+# Optional generic utility components (survey-based) — static rasters v1,v2,v3
+utility_generic:
+  enabled: true
+  normalize: false
+  mode: normalized
+  
+  # 每类开发商的权重（符号说明：距离海岸是“距离”，越小越好；因此先取负 z）
+  weights:
+    MumDad:     {v1: -0.5, v2: -0.75, v3: -0.75, v4: -0.5, v5: -0.25,v6: 0.5, v7: 0.5, v8: 0.5, v9: -0.25, v10: -0.25, v11: -0.25,  v12: -0.25}
+    Small:      {v1: -0.43, v2: -0.78,v3: -0.78, v4: -0.68,v5: -0.52,v6: 0.35,v7: 0.35,v8: 0.6, v9: -0.52, v10: -0.5, v11: -0.5, v12: -0.5}
+    Large:      {v1: -0.52, v2: -0.8, v3: -0.8, v4: -0.67,v5: -0.54,v6: 0.48,v7: 0.48,v8: 0.7, v9: -0.54,v10: -0.52, v11: -0.52, v12: -0.52}
+    Specialist: {v1: -0.56, v2: -0.75,v3: -0.75,v4: -0.63,v5: -0.5, v6: 0.63,v7: 0.63,v8: 0.9, v9: -0.5, v10: -0.69, v11: -0.69, v12: -0.69}
+
+raster:
+  base:
+    mask: /home/xyf/Downloads/landuse/datas/mask/mask.tif
+    land_use: ANN/2008urban.tif
+    v1: /home/xyf/Downloads/landuse/datas/greenspace/greenspace_to2020.tif
+    v2: /home/xyf/Downloads/landuse/datas/fibre/fibre_to2020.tif
+    v3: /home/xyf/Downloads/landuse/datas/3water1000m.tif
+    v4: /home/xyf/Downloads/landuse/datas/floodrisk/floodrisk_to2020.tif
+    v5: /home/xyf/Downloads/landuse/datas/roads/roads_to2020.tif
+    v6: ANN/income13.tif
+    v7: ANN/income18.tif
+    v8: /home/xyf/Downloads/landuse/datas/sitesize.tif
+    v9: /home/xyf/Downloads/landuse/datas/busstop_to2020.tif
+    v10: /home/xyf/Downloads/landuse/datas/school_to2020.tif
+    v11: /home/xyf/Downloads/landuse/datas/hospital_to2020.tif
+    v12: /home/xyf/Downloads/landuse/datas/shoppingmall/shoppingmal_to2020.tif
+
+  mapping:
+    land_use:
+      0: NonUrban
+      1: Urban
+  nodata_policy:
+    drop_if_any: [mask]  # 有哪层缺失就丢弃
+  filters:
+    mask_allow_values: [1]          # 只保留 mask==1 像元
+    include_land_use: [NonUrban, Urban]    # 只在 NonUrban 上考虑“新建”（如需重建，另行处理）
+
+neighborhood:
+  enabled: true
+  local_weight: 0.6
+  distance_weight: 0.4
+  distance_decay: 0.5   # 衰减速度 λ，越大扩散范围越短
+
