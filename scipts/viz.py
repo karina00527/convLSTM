@@ -2,7 +2,23 @@ import rasterio
 import numpy as np
 import matplotlib.pyplot as plt
 
-fp = "datas/coastline/coastline.tif"
+    # "/home/xyf/Downloads/landuse/datas/mask/mask.tif",
+    # "ANN/2008urban.tif",  # 1 = Urban, 0 = NonUrban (按你 mapping)
+    # "/home/xyf/Downloads/landuse/datas/greenspace/greenspace_to2020.tif",
+    # "/home/xyf/Downloads/landuse/datas/fibre/fibre_to2020.tif",
+    # "/home/xyf/Downloads/landuse/datas/3water1000m.tif",
+    # "/home/xyf/Downloads/landuse/datas/floodrisk/floodrisk_to2020.tif",
+    # "/home/xyf/Downloads/landuse/datas/roads/roads_to2020.tif",
+    # "ANN/income13.tif",
+    # "ANN/income18.tif",
+    # "/home/xyf/Downloads/landuse/datas/sitesize.tif",
+    # "/home/xyf/Downloads/landuse/datas/busstop_to2020.tif",
+    # "/home/xyf/Downloads/landuse/datas/school_to2020.tif",
+    # "/home/xyf/Downloads/landuse/datas/hospital_to2020.tif",
+    # "/home/xyf/Downloads/landuse/datas/shoppingmall/shoppingmal_to2020.tif",
+
+fp = "/home/xyf/Downloads/landuse/convLSTM/scipts/agent_based_model/output/combined_three_values.tif"
+# fp = "/home/xyf/Downloads/landuse/datas/greenspace/greenspace.tif"
 with rasterio.open(fp) as ds:
     arr = ds.read(1).astype(float)
     nodata = ds.nodata
